@@ -1,3 +1,36 @@
+mod server;
+
+const HOST: &str = "127.0.0.1";
+
 fn main() {
-    println!("Hello, world!");
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() < 2 {
+        println!("Requires a port argument");
+        std::process::exit(1);
+    }
+
+    let server = server::Server::new(
+        String::from(HOST),
+        {
+            if let Some(p) = args.get(1) {
+                p.clone()
+            } else {
+                "8000".to_string()
+            }
+        },
+    );
+
+    let address = server.get_address();
+
+    println!("Serving on {}", address);
+
+    let listener = std::net::TcpListener::bind(address).unwrap();
+
+    for stream_res in listener.incoming() {
+        match stream_res {
+            Ok(stream) => println!("Connection established!"),
+            Err(e) => println!("Error establishing connection: {}", e)
+        }
+    }
 }
