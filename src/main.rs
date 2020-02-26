@@ -29,7 +29,7 @@ fn main() {
 
     for stream_res in listener.incoming() {
         match stream_res {
-            Ok(stream) => println!("Connection established!"),
+            Ok(stream) => server.handle_connection(stream),
             Err(e) => println!("Error establishing connection: {}", e)
         }
     }
