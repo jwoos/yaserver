@@ -1,6 +1,6 @@
 use crate::http;
-use std::vec;
 use std::collections::HashMap;
+use std::vec;
 
 pub struct Request {
     method: http::HTTPMethod,

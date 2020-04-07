@@ -11,16 +11,13 @@ fn main() {
         std::process::exit(1);
     }
 
-    let server = server::Server::new(
-        String::from(HOST),
-        {
-            if let Some(p) = args.get(1) {
-                p.clone()
-            } else {
-                "8000".to_string()
-            }
-        },
-    );
+    let server = server::Server::new(String::from(HOST), {
+        if let Some(p) = args.get(1) {
+            p.clone()
+        } else {
+            "8000".to_string()
+        }
+    });
 
     let address = server.get_address();
 
@@ -29,9 +26,16 @@ fn main() {
     let listener = std::net::TcpListener::bind(address).unwrap();
 
     for stream_res in listener.incoming() {
-        match stream_res {
-            Ok(stream) => server.handle_connection(stream),
-            Err(e) => println!("Error establishing connection: {}", e)
+        let stream = match stream_res {
+            Ok(stream) => stream,
+            Err(e) => {
+                println!("Error establishing connection: {}", e);
+                continue;
+            }
+        };
+
+        if let Err(e) = server.handle_connection(stream) {
+            println!("Error handling connection: {}", e);
         }
     }
 }

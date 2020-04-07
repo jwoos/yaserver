@@ -1,4 +1,7 @@
+use std::io;
 use std::io::prelude::*;
+use std::net;
+use std::vec;
 
 const BUFFER_SIZE: usize = 512;
 
@@ -9,10 +12,7 @@ pub struct Server {
 
 impl Server {
     pub fn new(host: String, port: String) -> Server {
-        return Server{
-            host,
-            port,
-        };
+        return Server { host, port };
     }
 
     pub fn get_host(&self) -> &str {
@@ -27,38 +27,16 @@ impl Server {
         return [&self.host[..], &self.port[..]].join(":");
     }
 
-    pub fn handle_connection(&self, mut stream: std::net::TcpStream) {
-        let mut buffers = std::vec::Vec::new();
-
-        loop {
-            let mut buf = [0; BUFFER_SIZE];
-            if let Ok(read_size) = stream.read(&mut buf) {
-                println!("read_size: {}", read_size);
-                if read_size > 0 {
-                    buffers.push(buf);
-                }
-
-                if read_size < BUFFER_SIZE {
-                    break;
-                }
-            } else {
-                println!("Error reading from buffer!");
-            }
-        }
-
-        for (i, data) in buffers.iter().enumerate() {
-            println!("Buffer {}", i);
-            println!("{}", String::from_utf8_lossy(&data[..]));
-        }
+    pub fn handle_connection(&self, mut stream: net::TcpStream) -> io::Result<()> {
+        let mut buffer: vec::Vec<u8> = vec::Vec::new();
+        let read_size = stream.read_to_end(&mut buffer);
+        println!("{}", String::from_utf8_lossy(&buffer[..]));
 
         let response = "HTTP/1.1 200 OK\r\n\r\nOK";
 
-        if let Err(e) = stream.write(response.as_bytes()) {
-            println!("Error writing response: {}", e);
-        }
+        stream.write(response.as_bytes())?;
+        stream.flush()?;
 
-        if let Err(e) = stream.flush() {
-            println!("Error flushing stream: {}", e);
-        }
+        return Ok(());
     }
 }

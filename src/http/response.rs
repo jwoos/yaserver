@@ -4,8 +4,6 @@ pub struct Response {
 
 impl Response {
     pub fn new(data: std::vec::Vec<String>) -> Response {
-        return Response {
-            data,
-        };
+        return Response { data };
     }
 }
