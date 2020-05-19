@@ -1,6 +1,6 @@
+mod data;
 mod http;
 mod server;
-mod data;
 
 use std::net;
 

@@ -1,5 +1,5 @@
-use crate::http;
 use crate::data;
+use crate::http;
 use std::ascii;
 use std::collections::HashMap;
 use std::vec;
@@ -33,11 +33,11 @@ impl<'a> Request<'a> {
         };
     }
 
-/*
- *    pub fn parse(data: data::bytes::Bytes) -> Result<Request<'a>, ()> {
- *        return Some(Request {
- *
- *        });
- *    }
- */
+    /*
+     *    pub fn parse(data: data::bytes::Bytes) -> Result<Request<'a>, ()> {
+     *        return Some(Request {
+     *
+     *        });
+     *    }
+     */
 }

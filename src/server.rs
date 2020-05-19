@@ -1,8 +1,8 @@
+use crate::data;
 use std::io;
 use std::io::prelude::*;
 use std::net;
 use std::vec;
-use crate::data;
 
 pub struct Server {
     host: String,
@@ -34,14 +34,20 @@ impl Server {
             let mut partial_buffer = [0u8; 4096];
             match stream.read(&mut partial_buffer) {
                 Ok(size) => {
-                    println!("{}", String::from_utf8_lossy(&partial_buffer[..partial_buffer.len()]));
+                    println!(
+                        "{}",
+                        String::from_utf8_lossy(&partial_buffer[..partial_buffer.len()])
+                    );
                     buffer.extend_from_slice(&partial_buffer);
                     if size < partial_buffer.len() {
                         break;
                     }
-                },
+                }
                 Err(e) => {
-                    println!("An error occurred, terminating connection with {}", stream.peer_addr().unwrap());
+                    println!(
+                        "An error occurred, terminating connection with {}",
+                        stream.peer_addr().unwrap()
+                    );
                     stream.shutdown(net::Shutdown::Both).unwrap();
                     return Err(e);
                 }

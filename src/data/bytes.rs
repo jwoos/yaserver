@@ -14,9 +14,7 @@ pub struct BytesSplit<'a, 'b> {
 
 impl Bytes {
     pub fn new(data: vec::Vec<u8>) -> Self {
-        return Bytes {
-            raw_data: data,
-        };
+        return Bytes { raw_data: data };
     }
 
     // Returns the index to the first occurrence of search
@@ -42,7 +40,7 @@ impl Bytes {
         return Err(());
     }
 
-    pub fn split<'a, 'b>(&'a self, search_terms: &'b[u8]) -> BytesSplit<'a, 'b> {
+    pub fn split<'a, 'b>(&'a self, search_terms: &'b [u8]) -> BytesSplit<'a, 'b> {
         return BytesSplit::new(&self, search_terms);
     }
 
@@ -60,7 +58,7 @@ impl Bytes {
 
 impl<'a, 'b> BytesSplit<'a, 'b> {
     pub fn new(bytes: &'a Bytes, search_terms: &'b [u8]) -> BytesSplit<'a, 'b> {
-        return BytesSplit{
+        return BytesSplit {
             bytes: bytes,
             search_terms: search_terms,
             index: 0,
@@ -81,8 +79,12 @@ impl<'a, 'b> Iterator for BytesSplit<'a, 'b> {
             Ok(start_index) => {
                 let previous_index = self.index;
                 self.index = start_index + self.search_terms.len();
-                return Some(self.bytes.view(Some(previous_index), Some(start_index)).unwrap());
-            },
+                return Some(
+                    self.bytes
+                        .view(Some(previous_index), Some(start_index))
+                        .unwrap(),
+                );
+            }
             Err(_) => {
                 self.finished = true;
 
