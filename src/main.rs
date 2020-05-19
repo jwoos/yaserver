@@ -1,5 +1,8 @@
 mod http;
 mod server;
+mod data;
+
+use std::net;
 
 const HOST: &str = "127.0.0.1";
 
@@ -26,7 +29,7 @@ fn main() {
     let listener = std::net::TcpListener::bind(address).unwrap();
 
     for stream_res in listener.incoming() {
-        let stream = match stream_res {
+        let stream: net::TcpStream = match stream_res {
             Ok(stream) => stream,
             Err(e) => {
                 println!("Error establishing connection: {}", e);

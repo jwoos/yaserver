@@ -1,25 +1,43 @@
 use crate::http;
+use crate::data;
+use std::ascii;
 use std::collections::HashMap;
 use std::vec;
 
-pub struct Request {
+// TODO the rest of the HTTP request
+pub struct Request<'a> {
+    data: data::bytes::Bytes,
+    head: String,
     method: http::HTTPMethod,
-    data: vec::Vec<u8>,
-    headers: HashMap<String, String>,
+    path: &'a str,
+    headers: HashMap<&'a str, &'a str>,
+    body: &'a [u8],
 }
 
-impl Request {
-    pub fn new(method: http::HTTPMethod, data: vec::Vec<u8>) -> Request {
-        let hashmap: HashMap<String, String> = HashMap::new();
+impl<'a> Request<'a> {
+    pub fn new(
+        data: data::bytes::Bytes,
+        head: String,
+        method: http::HTTPMethod,
+        path: &'a str,
+        headers: HashMap<&'a str, &'a str>,
+        body: &'a [u8],
+    ) -> Request<'a> {
         return Request {
-            method: method,
-            data: data,
-            headers: hashmap,
+            data,
+            head,
+            method,
+            path,
+            headers,
+            body,
         };
     }
 
-    pub fn parse(data: vec::Vec<u8>) -> (HashMap<String, String>, String) {
-        let mut headers: HashMap<String, String> = HashMap::new();
-        return (headers, "".to_string());
-    }
+/*
+ *    pub fn parse(data: data::bytes::Bytes) -> Result<Request<'a>, ()> {
+ *        return Some(Request {
+ *
+ *        });
+ *    }
+ */
 }
