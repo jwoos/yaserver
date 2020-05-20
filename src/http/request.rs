@@ -34,10 +34,19 @@ impl<'a> Request<'a> {
     }
 
     /*
-     *    pub fn parse(data: data::bytes::Bytes) -> Result<Request<'a>, ()> {
-     *        return Some(Request {
+     *        pub fn parse(data: data::bytes::Bytes) -> Result<Request<'a>, ()> {
+     *            let iter = data.split(&[b'\r', b'\n']);
      *
-     *        });
-     *    }
+     *            // first line
+     *            if let Some(first) = iter.next() {
+     *                let first_iter = first.split()
+     *
+     *            } else {
+     *                return Err(());
+     *            }
+     *
+     *            return Some(Request {
+     *            });
+     *        }
      */
 }

@@ -1,4 +1,5 @@
 use crate::data;
+use std::iter;
 use std::vec;
 
 pub struct Bytes {
@@ -66,6 +67,8 @@ impl<'a, 'b> BytesSplit<'a, 'b> {
         };
     }
 }
+
+impl<'a, 'b> iter::FusedIterator for BytesSplit<'a, 'b> {}
 
 impl<'a, 'b> Iterator for BytesSplit<'a, 'b> {
     type Item = &'a [u8];
