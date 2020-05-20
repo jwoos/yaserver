@@ -1,5 +1,4 @@
 use crate::data::findable;
-use std::iter;
 use std::marker;
 
 pub struct TermSplit<'a, T>

@@ -1,6 +1,3 @@
-use std::iter;
-use std::vec;
-
 pub trait Findable<T>: IntoIterator
 where
     T: PartialEq,

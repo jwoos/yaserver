@@ -74,7 +74,7 @@ impl<'a, 'b> Iterator for BytesSplit<'a, 'b> {
     type Item = &'a [u8];
 
     fn next(&mut self) -> Option<Self::Item> {
-        if (self.finished) {
+        if self.finished {
             return None;
         }
 

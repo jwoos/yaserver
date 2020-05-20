@@ -2,7 +2,6 @@ use crate::data;
 use std::io;
 use std::io::prelude::*;
 use std::net;
-use std::vec;
 
 pub struct Server {
     host: String,
