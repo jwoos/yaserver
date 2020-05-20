@@ -3,7 +3,8 @@ use std::iter;
 
 pub struct TermSplit<'a, T>
 where
-    T: Iterator,
+    T: IntoIterator,
+    T::Item: PartialEq,
 {
     data: T,
     search_terms: &'a [T::Item],
@@ -11,9 +12,10 @@ where
     finished: bool,
 }
 
-pub trait TermSplittable<T>: findable::Findable<T>
+pub trait TermSplittable<T>: findable::Findable<T::Item>
 where
-    T: Iterator,
+    T: IntoIterator,
+    T::Item: PartialEq,
 {
-    fn split(&self) -> TermSplit<T>;
+    fn split_term(&self) -> TermSplit<T>;
 }
