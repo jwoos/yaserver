@@ -1,4 +1,4 @@
-use crate::data::findable;
+use crate::data::term_findable;
 use std::marker;
 
 pub struct TermSplit<'a, T>
@@ -12,7 +12,7 @@ where
     finished: bool,
 }
 
-pub trait TermSplittable: IntoIterator + findable::Findable<<Self as IntoIterator>::Item>
+pub trait TermSplittable: IntoIterator + term_findable::TermFindable<<Self as IntoIterator>::Item>
 where
     <Self as std::iter::IntoIterator>::Item: PartialEq,
     Self: marker::Sized,

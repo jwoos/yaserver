@@ -1,11 +1,11 @@
-pub trait Findable<T>: IntoIterator
+pub trait TermFindable<T>: IntoIterator
 where
     T: PartialEq,
 {
     fn find_term(&self, start_index: usize, search_terms: &[T]) -> Option<usize>;
 }
 
-impl<T> Findable<T> for &[T]
+impl<T> TermFindable<T> for &[T]
 where
     T: PartialEq,
 {
@@ -41,7 +41,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::data::findable::Findable;
+    use crate::data::term_findable::TermFindable;
 
     const TEST_DATA: &[u8] = &[0, 0, 0, 1, 2, 3, 0, 0];
 
