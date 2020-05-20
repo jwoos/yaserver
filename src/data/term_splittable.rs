@@ -12,7 +12,8 @@ where
     finished: bool,
 }
 
-pub trait TermSplittable: IntoIterator + term_findable::TermFindable<<Self as IntoIterator>::Item>
+pub trait TermSplittable:
+    IntoIterator + term_findable::TermFindable<<Self as IntoIterator>::Item>
 where
     <Self as std::iter::IntoIterator>::Item: PartialEq,
     Self: marker::Sized,

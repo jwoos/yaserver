@@ -10,14 +10,18 @@ where
     T: PartialEq,
 {
     fn find_term(&self, start_index: usize, search_terms: &[T]) -> Option<usize> {
-        let mut start_index = 0;
+        let mut search_start_index = 0;
         let mut index = 0;
         for (i, c) in self.into_iter().enumerate() {
+            if i < start_index {
+                continue;
+            }
+
             let mut reset = false;
             loop {
                 if search_terms[index] == *c {
                     if index == 0 {
-                        start_index = i;
+                        search_start_index = i;
                     }
                     index += 1;
                     break;
@@ -31,7 +35,7 @@ where
             }
 
             if index > (search_terms.len() - 1) {
-                return Some(start_index);
+                return Some(search_start_index);
             }
         }
 
@@ -68,9 +72,15 @@ mod tests {
 
     #[test]
     fn found_multiple() {
-        let x: [u8; 8] = [0, 0, 0, 1, 2, 3, 0, 0];
-        let found = (&x[..]).find_term(0, &[1, 2]);
+        let found = TEST_DATA.find_term(0, &[1, 2]);
         assert_ne!(None, found);
         assert_eq!(3, found.unwrap());
+    }
+
+    #[test]
+    fn found_skip() {
+        let found = TEST_DATA.find_term(3, &[0]);
+        assert_ne!(None, found);
+        assert_eq!(6, found.unwrap());
     }
 }
