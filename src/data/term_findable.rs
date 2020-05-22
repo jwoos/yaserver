@@ -1,8 +1,48 @@
+use std::vec;
+
 pub trait TermFindable<T>: IntoIterator
 where
     T: PartialEq,
 {
     fn find_term(&self, start_index: usize, search_terms: &[T]) -> Option<usize>;
+}
+
+impl<T> TermFindable<T> for vec::Vec<T>
+where
+    T: PartialEq,
+{
+    fn find_term(&self, start_index: usize, search_terms: &[T]) -> Option<usize> {
+        let mut search_start_index = 0;
+        let mut index = 0;
+        for (i, c) in self.into_iter().enumerate() {
+            if i < start_index {
+                continue;
+            }
+
+            let mut reset = false;
+            loop {
+                if search_terms[index] == *c {
+                    if index == 0 {
+                        search_start_index = i;
+                    }
+                    index += 1;
+                    break;
+                } else if !reset {
+                    index = 0;
+                    reset = true;
+                } else {
+                    index = 0;
+                    break;
+                }
+            }
+
+            if index > (search_terms.len() - 1) {
+                return Some(search_start_index);
+            }
+        }
+
+        return None;
+    }
 }
 
 impl<T> TermFindable<T> for &[T]
