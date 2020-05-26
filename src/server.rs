@@ -1,4 +1,5 @@
 use crate::data;
+use crate::http;
 use std::io;
 use std::io::prelude::*;
 use std::net;
@@ -33,10 +34,6 @@ impl Server {
             let mut partial_buffer = [0u8; 4096];
             match stream.read(&mut partial_buffer) {
                 Ok(size) => {
-                    println!(
-                        "{}",
-                        String::from_utf8_lossy(&partial_buffer[..partial_buffer.len()])
-                    );
                     buffer.extend_from_slice(&partial_buffer);
                     if size < partial_buffer.len() {
                         break;
@@ -53,18 +50,16 @@ impl Server {
             }
         }
 
-        let bytes = data::bytes::Bytes::new(buffer);
-
-        let index = match bytes.find(0, &[b'\r', b'\n', b'\r', b'\n']) {
-            Ok(index) => index,
-            Err(_) => {
-                let response = "HTTP/1.1 400 Bad Request\r\n\r\n";
-
-                stream.write(response.as_bytes())?;
+        let request = match http::request::Request::parse(buffer) {
+            Ok(req) => req,
+            Err(resp) => {
+                stream.write(resp.as_bytes())?;
                 stream.flush()?;
+
                 return Ok(());
             }
         };
+        println!("{:?} {:?} {:?}", request.get_method(), request.get_path(), request.get_version());
 
         let response = "HTTP/1.1 200 OK\r\n\r\nOK";
 
