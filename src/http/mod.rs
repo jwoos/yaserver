@@ -14,7 +14,7 @@ pub enum HTTPMethod {
     PATCH,
 }
 
-pub fn string_to_http_method(string: &str) -> Option<HTTPMethod>{
+pub fn string_to_http_method(string: &str) -> Option<HTTPMethod> {
     return match string {
         "GET" => Some(HTTPMethod::GET),
         "HEAD" => Some(HTTPMethod::HEAD),
@@ -40,7 +40,7 @@ pub fn string_tp_http_version(string: &str) -> Option<HTTPVersion> {
         "HTTP/1.1" => Some(HTTPVersion::HTTP_1_1),
         "HTTP/2.0" => Some(HTTPVersion::HTTP_2_0),
         _ => None,
-    }
+    };
 }
 
 pub enum HTTPCode {

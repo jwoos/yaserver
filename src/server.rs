@@ -59,7 +59,12 @@ impl Server {
                 return Ok(());
             }
         };
-        println!("{:?} {:?} {:?}", request.get_method(), request.get_path(), request.get_version());
+        println!(
+            "{:?} {:?} {:?}",
+            request.get_method(),
+            request.get_path(),
+            request.get_version()
+        );
 
         let response = "HTTP/1.1 200 OK\r\n\r\nOK";
 

@@ -1,8 +1,8 @@
 use crate::data;
 use crate::http;
+use ascii::{AsAsciiStr, AsciiChar, AsciiStr, AsciiString};
 use std::collections::HashMap;
 use std::vec;
-use ascii::{AsAsciiStr, AsciiChar, AsciiString, AsciiStr};
 
 pub struct Request {
     method: http::HTTPMethod,
@@ -31,7 +31,7 @@ impl Request {
             }
         };
         let mut head_iter = head.lines();
-        let body = vec::Vec::from(&data[index+4..]);
+        let body = vec::Vec::from(&data[index + 4..]);
 
         let first_line: vec::Vec<&AsciiStr> = match head_iter.next() {
             Some(line) => line.split(AsciiChar::Space).collect(),
@@ -57,10 +57,7 @@ impl Request {
                 val.push_str(v_part);
             }
 
-            headers.insert(
-                AsciiString::from(parts[0]),
-                val,
-                );
+            headers.insert(AsciiString::from(parts[0]), val);
         }
 
         return Ok(Request {
