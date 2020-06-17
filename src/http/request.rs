@@ -45,7 +45,7 @@ impl Request {
 
         let method = http::string_to_http_method(first_line[0].as_str()).ok_or(BAD_REQUEST)?;
         let path = AsciiString::from(first_line[1]);
-        let version = http::string_tp_http_version(first_line[2].as_str()).ok_or(BAD_REQUEST)?;
+        let version = http::string_to_http_version(first_line[2].as_str()).ok_or(BAD_REQUEST)?;
 
         let mut headers: HashMap<AsciiString, AsciiString> = HashMap::new();
 

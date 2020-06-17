@@ -1,8 +1,10 @@
 use crate::data;
 use crate::http;
+use std::collections;
 use std::io;
 use std::io::prelude::*;
 use std::net;
+use std::vec;
 
 pub struct Server {
     host: String,
@@ -44,7 +46,7 @@ impl Server {
                         "An error occurred, terminating connection with {}",
                         stream.peer_addr().unwrap()
                     );
-                    stream.shutdown(net::Shutdown::Both).unwrap();
+                    stream.shutdown(net::Shutdown::Both)?;
                     return Err(e);
                 }
             }
@@ -66,9 +68,24 @@ impl Server {
             request.get_version()
         );
 
-        let response = "HTTP/1.1 200 OK\r\n\r\nOK";
+        let response = http::response::Response::new(
+            http::HTTPVersion::HTTP_1_1,
+            200,
+            collections::HashMap::new(),
+            vec::Vec::new(),
+        );
+        let response_bytes = match response.build_bytes() {
+            Some(resp) => resp,
+            None => {
+                stream.shutdown(net::Shutdown::Both)?;
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    "Could not construct response",
+                ));
+            }
+        };
 
-        stream.write(response.as_bytes())?;
+        stream.write(&response_bytes)?;
         stream.flush()?;
 
         stream.shutdown(net::Shutdown::Both)?;
