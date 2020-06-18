@@ -43,23 +43,5 @@ fn main() {
         String::from(matches.value_of(ARG_PORT).unwrap()),
     );
 
-    let address = server.get_address();
-
-    println!("Serving on {}", address);
-
-    let listener = std::net::TcpListener::bind(address).unwrap();
-
-    for stream_res in listener.incoming() {
-        let stream: net::TcpStream = match stream_res {
-            Ok(stream) => stream,
-            Err(e) => {
-                println!("Error establishing connection: {}", e);
-                continue;
-            }
-        };
-
-        if let Err(e) = server.handle_connection(stream) {
-            println!("Error handling connection: {}", e);
-        }
-    }
+    server.serve();
 }

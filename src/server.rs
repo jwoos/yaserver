@@ -9,11 +9,17 @@ use std::vec;
 pub struct Server {
     host: String,
     port: String,
+    address: String,
 }
 
 impl Server {
     pub fn new(host: String, port: String) -> Server {
-        return Server { host, port };
+        let address = [&host[..], &port[..]].join(":");
+        return Server {
+            host,
+            port,
+            address,
+        };
     }
 
     pub fn get_host(&self) -> &str {
@@ -24,11 +30,30 @@ impl Server {
         return &self.port[..];
     }
 
-    pub fn get_address(&self) -> String {
-        return [&self.host[..], &self.port[..]].join(":");
+    pub fn get_address(&self) -> &str {
+        return &self.address[..];
     }
 
-    pub fn handle_connection(&self, mut stream: net::TcpStream) -> io::Result<()> {
+    pub fn serve(&self) {
+        println!("Serving on {}", self.address);
+        let listener = std::net::TcpListener::bind(&self.address).unwrap();
+
+        for stream_res in listener.incoming() {
+            let stream: net::TcpStream = match stream_res {
+                Ok(stream) => stream,
+                Err(e) => {
+                    println!("Error establishing connection: {}", e);
+                    continue;
+                }
+            };
+
+            if let Err(e) = Server::handle_connection(stream) {
+                println!("Error handling connection: {}", e);
+            }
+        }
+    }
+
+    fn handle_connection(mut stream: net::TcpStream) -> io::Result<()> {
         println!("New connection from {}", stream.peer_addr().unwrap());
 
         let mut buffer: std::vec::Vec<u8> = std::vec::Vec::new();
