@@ -4,7 +4,9 @@ mod server;
 mod thread;
 
 use clap::{App, Arg};
+use ctrlc;
 use std::net;
+use std::process;
 
 const ARG_STATIC_DIRECTORY: &str = "STATIC_DIRECTORY";
 const ARG_HOST: &str = "HOST";
@@ -47,6 +49,12 @@ fn main() {
                 .help("The number of threads to spin up"),
         )
         .get_matches();
+
+    ctrlc::set_handler(move || {
+        println!("Exiting");
+        std::process::exit(0);
+    })
+    .expect("Error setting Ctrl-C handler");
 
     let server = server::Server::new(
         String::from(matches.value_of(ARG_HOST).unwrap()),
