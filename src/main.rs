@@ -1,6 +1,7 @@
 mod data;
 mod http;
 mod server;
+mod thread;
 
 use clap::{App, Arg};
 use std::net;
@@ -8,6 +9,7 @@ use std::net;
 const ARG_STATIC_DIRECTORY: &str = "STATIC_DIRECTORY";
 const ARG_HOST: &str = "HOST";
 const ARG_PORT: &str = "PORT";
+const ARG_THREAD_COUNT: &str = "THREAD_COUNT";
 
 fn main() {
     let matches = App::new("yaserver")
@@ -36,11 +38,24 @@ fn main() {
                 .default_value("8000")
                 .help("The port to serve on"),
         )
+        .arg(
+            Arg::with_name(ARG_THREAD_COUNT)
+                .required(true)
+                .long("thread_count")
+                .takes_value(true)
+                .default_value("16")
+                .help("The number of threads to spin up"),
+        )
         .get_matches();
 
     let server = server::Server::new(
         String::from(matches.value_of(ARG_HOST).unwrap()),
         String::from(matches.value_of(ARG_PORT).unwrap()),
+        matches
+            .value_of(ARG_THREAD_COUNT)
+            .unwrap()
+            .parse::<usize>()
+            .unwrap(),
     );
 
     server.serve();

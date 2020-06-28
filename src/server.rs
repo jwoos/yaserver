@@ -1,5 +1,6 @@
 use crate::data;
 use crate::http;
+use crate::thread;
 use std::collections;
 use std::io;
 use std::io::prelude::*;
@@ -10,15 +11,17 @@ pub struct Server {
     host: String,
     port: String,
     address: String,
+    threadPool: thread::ThreadPool,
 }
 
 impl Server {
-    pub fn new(host: String, port: String) -> Server {
+    pub fn new(host: String, port: String, thread_count: usize) -> Server {
         let address = [&host[..], &port[..]].join(":");
         return Server {
             host,
             port,
             address,
+            threadPool: thread::ThreadPool::new(thread_count),
         };
     }
 
@@ -39,17 +42,19 @@ impl Server {
         let listener = std::net::TcpListener::bind(&self.address).unwrap();
 
         for stream_res in listener.incoming() {
-            let stream: net::TcpStream = match stream_res {
-                Ok(stream) => stream,
-                Err(e) => {
-                    println!("Error establishing connection: {}", e);
-                    continue;
-                }
-            };
+            self.threadPool.execute(move || {
+                let stream: net::TcpStream = match stream_res {
+                    Ok(stream) => stream,
+                    Err(e) => {
+                        println!("Error establishing connection: {}", e);
+                        return;
+                    }
+                };
 
-            if let Err(e) = Server::handle_connection(stream) {
-                println!("Error handling connection: {}", e);
-            }
+                if let Err(e) = Server::handle_connection(stream) {
+                    println!("Error handling connection: {}", e);
+                }
+            });
         }
     }
 
