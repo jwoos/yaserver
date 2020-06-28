@@ -12,6 +12,7 @@ pub struct Request {
     body: vec::Vec<u8>,
 }
 
+// TODO return a response object
 const BAD_REQUEST: &'static str = "HTTP/1.1 400 Bad Request\r\n\r\n";
 
 impl Request {
