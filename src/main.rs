@@ -63,6 +63,9 @@ fn main() {
             .unwrap()
             .parse::<usize>()
             .unwrap(),
+        server::ServerParams::new(String::from(
+            matches.value_of(ARG_STATIC_DIRECTORY).unwrap_or(""),
+        )),
     );
 
     server.serve();

@@ -35,6 +35,8 @@ impl Response {
             res.push_str(&format!("{}: {}\r\n", k, v));
         }
 
+        res.push_str(&format!("{}: {}\r\n", "Content-Length", self.body.len()));
+
         res.push_str("\r\n");
 
         let mut bytes: vec::Vec<u8> = vec::Vec::new();

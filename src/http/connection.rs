@@ -1,21 +1,26 @@
 use crate::http;
+use crate::server::ServerParams;
+use ascii::{AsciiChar, AsciiStr};
 use std::cell;
 use std::collections;
-use std::io;
-use std::io::{Read, Write};
+use std::fs::File;
+use std::io::{self, Read, Write};
 use std::net;
+use std::sync::Arc;
 use std::vec;
 
 pub struct Connection {
     stream: cell::RefCell<net::TcpStream>,
+    params: Arc<ServerParams>,
 }
 
 impl Connection {
-    pub fn new(stream: net::TcpStream) -> Connection {
+    pub fn new(stream: net::TcpStream, params: Arc<ServerParams>) -> Connection {
         println!("New connection from {}", stream.peer_addr().unwrap());
 
         return Connection {
             stream: cell::RefCell::new(stream),
+            params,
         };
     }
 
@@ -45,6 +50,7 @@ impl Connection {
         return Ok(buffer);
     }
 
+    // TODO change it to take vector
     fn write_stream(&self, data: &[u8]) -> io::Result<()> {
         let mut stream = self.stream.borrow_mut();
         stream.write(data)?;
@@ -63,35 +69,72 @@ impl Connection {
                 return Ok(());
             }
         };
+
+        let path = request.get_path();
         println!(
             "{:?} {:?} {:?}",
             request.get_method(),
-            request.get_path(),
+            path,
             request.get_version()
         );
 
-        let response = http::response::Response::new(
-            http::HTTPVersion::HTTP_1_1,
-            200,
-            collections::HashMap::new(),
-            vec::Vec::new(),
-        );
-        let response_bytes = match response.build_bytes() {
-            Some(resp) => resp,
-            None => {
+        // TODO fix
+        if self.params.static_directory.len() > 0 {
+            let parts = path.split(AsciiChar::Slash).collect::<vec::Vec<_>>();
+            if parts[1] == self.params.static_directory {
+                let mut file = File::open(String::from(path[1..].as_str())).unwrap();
+                let mut data = vec::Vec::new();
+
+                file.read_to_end(&mut data).unwrap();
+
+                // TODO separate into function
+                let response = http::response::Response::new(
+                    http::HTTPVersion::HTTP_1_1,
+                    200,
+                    collections::HashMap::new(),
+                    data,
+                );
+                let response_bytes = match response.build_bytes() {
+                    Some(resp) => resp,
+                    None => {
+                        let stream = self.stream.borrow_mut();
+                        stream.shutdown(net::Shutdown::Both)?;
+                        return Err(io::Error::new(
+                            io::ErrorKind::InvalidData,
+                            "Could not construct response",
+                        ));
+                    }
+                };
+
+                self.write_stream(&response_bytes)?;
+
                 let stream = self.stream.borrow_mut();
                 stream.shutdown(net::Shutdown::Both)?;
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidData,
-                    "Could not construct response",
-                ));
             }
-        };
+        } else {
+            let response = http::response::Response::new(
+                http::HTTPVersion::HTTP_1_1,
+                200,
+                collections::HashMap::new(),
+                vec::Vec::new(),
+            );
+            let response_bytes = match response.build_bytes() {
+                Some(resp) => resp,
+                None => {
+                    let stream = self.stream.borrow_mut();
+                    stream.shutdown(net::Shutdown::Both)?;
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "Could not construct response",
+                    ));
+                }
+            };
 
-        self.write_stream(&response_bytes)?;
+            self.write_stream(&response_bytes)?;
 
-        let stream = self.stream.borrow_mut();
-        stream.shutdown(net::Shutdown::Both)?;
+            let stream = self.stream.borrow_mut();
+            stream.shutdown(net::Shutdown::Both)?;
+        }
 
         return Ok(());
     }

@@ -1,9 +1,19 @@
 use crate::http;
 use crate::thread;
+use std::collections::HashMap;
 use std::net;
+use std::sync::Arc;
 
+// put into Router??
+#[derive(Clone)]
 pub struct ServerParams {
-    statci_directory: String,
+    pub static_directory: String,
+}
+
+impl ServerParams {
+    pub fn new(static_directory: String) -> ServerParams {
+        return ServerParams { static_directory };
+    }
 }
 
 pub struct Server {
@@ -11,16 +21,19 @@ pub struct Server {
     port: String,
     address: String,
     thread_pool: thread::ThreadPool,
+    params: Arc<ServerParams>,
 }
 
 impl Server {
-    pub fn new(host: String, port: String, thread_count: usize) -> Server {
+    pub fn new(host: String, port: String, thread_count: usize, params: ServerParams) -> Server {
         let address = [&host[..], &port[..]].join(":");
+
         return Server {
             host,
             port,
             address,
             thread_pool: thread::ThreadPool::new(thread_count),
+            params: Arc::new(params),
         };
     }
 
@@ -41,6 +54,7 @@ impl Server {
         let listener = std::net::TcpListener::bind(&self.address).unwrap();
 
         for stream_res in listener.incoming() {
+            let params = self.params.clone();
             self.thread_pool.execute(move || {
                 let stream: net::TcpStream = match stream_res {
                     Ok(stream) => stream,
@@ -50,7 +64,7 @@ impl Server {
                     }
                 };
 
-                let connection = http::connection::Connection::new(stream);
+                let connection = http::connection::Connection::new(stream, params);
                 if let Err(e) = connection.handle() {
                     println!("Error handling connection: {}", e);
                 }
