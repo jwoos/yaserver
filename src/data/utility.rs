@@ -1,5 +1,3 @@
-use crate::data;
-
 pub fn find(data: &[u8], start_index: usize, search_terms: &[u8]) -> Option<usize> {
     let mut search_start_index = 0;
     let mut index = 0;

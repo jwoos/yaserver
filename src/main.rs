@@ -5,7 +5,6 @@ mod thread;
 
 use clap::{App, Arg};
 use ctrlc;
-use std::net;
 use std::process;
 
 const ARG_STATIC_DIRECTORY: &str = "STATIC_DIRECTORY";

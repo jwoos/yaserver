@@ -1,21 +1,16 @@
-use crate::data;
 use crate::http;
 use crate::thread;
-use std::collections;
-use std::io;
-use std::io::prelude::*;
 use std::net;
-use std::vec;
 
 pub struct ServerParams {
-    staticDirectory: String,
+    statci_directory: String,
 }
 
 pub struct Server {
     host: String,
     port: String,
     address: String,
-    threadPool: thread::ThreadPool,
+    thread_pool: thread::ThreadPool,
 }
 
 impl Server {
@@ -25,7 +20,7 @@ impl Server {
             host,
             port,
             address,
-            threadPool: thread::ThreadPool::new(thread_count),
+            thread_pool: thread::ThreadPool::new(thread_count),
         };
     }
 
@@ -46,7 +41,7 @@ impl Server {
         let listener = std::net::TcpListener::bind(&self.address).unwrap();
 
         for stream_res in listener.incoming() {
-            self.threadPool.execute(move || {
+            self.thread_pool.execute(move || {
                 let stream: net::TcpStream = match stream_res {
                     Ok(stream) => stream,
                     Err(e) => {

@@ -2,8 +2,6 @@ pub mod connection;
 pub mod request;
 pub mod response;
 
-use std::collections::HashMap;
-
 #[macro_export]
 macro_rules! hashmap(
     {$($key:expr => $value:expr),+} => {
@@ -63,7 +61,6 @@ pub fn http_version_to_string(version_enum: HTTPVersion) -> Option<&'static str>
     return match version_enum {
         HTTPVersion::HTTP_1_1 => Some("HTTP/1.1"),
         HTTPVersion::HTTP_2_0 => Some("HTTP/2.0"),
-        _ => None,
     };
 }
 
