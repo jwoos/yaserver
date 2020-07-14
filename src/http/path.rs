@@ -1,6 +1,7 @@
 use std::fmt;
 use std::rc::Rc;
-use std::vec::Vec;
+use std::slice::{Iter, IterMut};
+use std::vec::{IntoIter, Vec};
 
 pub enum Token {
     Invalid,
@@ -76,5 +77,32 @@ impl Path {
          *            }).collect::<String>();
          *        }
          */
+    }
+}
+
+impl IntoIterator for Path {
+    type Item = Token;
+    type IntoIter = IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        return self.tokens.into_iter();
+    }
+}
+
+impl<'a> IntoIterator for &'a Path {
+    type Item = &'a Token;
+    type IntoIter = Iter<'a, Token>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        return self.tokens.iter();
+    }
+}
+
+impl<'a> IntoIterator for &'a mut Path {
+    type Item = &'a mut Token;
+    type IntoIter = IterMut<'a, Token>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        return self.tokens.iter_mut();
     }
 }
