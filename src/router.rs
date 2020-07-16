@@ -21,9 +21,9 @@ use ascii::{AsciiChar, AsciiStr};
  *}
  */
 
-// TODO add flag to show validity
 pub struct RouterTrie {
-    children: Arc<RwLock<HashMap<String, RouterTrie>>>,
+    // TODO add Arc and RwLock for concurrent access
+    children: HashMap<String, RouterTrie>,
     path: Option<PathBuf>,
     terminator: bool,
 }
@@ -31,7 +31,7 @@ pub struct RouterTrie {
 impl RouterTrie {
     pub fn new() -> RouterTrie {
         return RouterTrie {
-            children: Arc::new(RwLock::new(HashMap::new())),
+            children: HashMap::new(),
             path: None,
             terminator: false,
         };
@@ -47,29 +47,29 @@ impl RouterTrie {
             let entry = dir?;
             let path = entry.path();
             let partial_path = String::from(entry.file_name().to_str().unwrap());
-            let mut children = base.children.write().unwrap();
 
             if entry.metadata()?.is_dir() {
-                children.insert(partial_path.clone(), RouterTrie::construct(partial_path)?);
+                base.children
+                    .insert(partial_path.clone(), RouterTrie::construct(partial_path)?);
             } else {
                 let mut child = RouterTrie::new();
                 child.path = Some(entry.path());
                 child.terminator = true;
 
-                children.insert(partial_path, child);
+                base.children.insert(partial_path, child);
             }
         }
 
         return Ok(base);
     }
 
-    pub fn find(&self, path: &Path) -> bool {
+    pub fn find(&self, path: &mut Path) -> bool {
         let mut current = self;
 
-        for tok in path {
-            let path = current.path.as_ref();
+        for tok in path.into_iter() {
+            let os_path = current.path.as_ref();
 
-            if path.is_none() {
+            if os_path.is_none() {
                 return false;
             }
 
@@ -79,11 +79,10 @@ impl RouterTrie {
                 }
                 Token::Literal(literal) => {
                     let partial_path =
-                        String::from(path.unwrap().file_name().unwrap().to_str().unwrap());
+                        String::from(os_path.unwrap().file_name().unwrap().to_str().unwrap());
+
                     if *literal == partial_path {
-                        let children_lock = current.children.clone();
-                        let children = children_lock.read().unwrap();
-                        if let Some(child) = children.get(literal) {
+                        if let Some(child) = current.children.get(literal) {
                             current = child;
                         } else {
                             return false;
@@ -100,9 +99,8 @@ impl RouterTrie {
         }
 
         if !current.terminator {
-            let children_lock = current.children.clone();
-            let children = children_lock.read().unwrap();
-            if let Some(_) = children.get("index.html") {
+            if let Some(_) = current.children.get("index.html") {
+                path.add(Token::Literal(String::from("index.html")));
                 return true;
             }
         }

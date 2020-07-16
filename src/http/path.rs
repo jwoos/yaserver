@@ -78,6 +78,10 @@ impl Path {
          *        }
          */
     }
+
+    pub fn add(&mut self, token: Token) {
+        self.tokens.push(token);
+    }
 }
 
 impl IntoIterator for Path {
