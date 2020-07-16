@@ -3,12 +3,42 @@ use std::rc::Rc;
 use std::slice::{Iter, IterMut};
 use std::vec::{IntoIter, Vec};
 
+#[derive(Debug)]
 pub enum Token {
     Invalid,
     Literal(String),
     Pattern(String),
     // TODO support?
     Regex(String),
+}
+
+impl PartialEq for Token {
+    fn eq(&self, other: &Self) -> bool {
+        match self {
+            Token::Invalid => {
+                if let Token::Invalid = other {
+                    return true;
+                }
+            }
+            Token::Literal(a) => {
+                if let Token::Literal(b) = other {
+                    return a == b;
+                }
+            }
+            Token::Pattern(a) => {
+                if let Token::Pattern(b) = other {
+                    return a == b;
+                }
+            }
+            Token::Regex(a) => {
+                if let Token::Regex(b) = other {
+                    return a == b;
+                }
+            }
+        }
+
+        return false;
+    }
 }
 
 pub struct PathError {
@@ -56,6 +86,7 @@ impl Path {
         // TODO support anything other than literals
         let tokens: Vec<_> = literal
             .split("/")
+            .filter(|tok| *tok != "")
             .map(|tok| Token::Literal(String::from(tok)))
             .collect();
         return Ok(Path { literal, tokens });
@@ -108,5 +139,18 @@ impl<'a> IntoIterator for &'a mut Path {
 
     fn into_iter(self) -> Self::IntoIter {
         return self.tokens.iter_mut();
+    }
+}
+
+mod tests {
+    use crate::http::path::{Path, Token};
+
+    #[test]
+    fn parse() {
+        let path = Path::parse(String::from("/a/b/c")).unwrap();
+
+        assert!(path.into_iter().eq(vec!["a", "b", "c"]
+            .into_iter()
+            .map(|x| Token::Literal(String::from(x)))));
     }
 }
