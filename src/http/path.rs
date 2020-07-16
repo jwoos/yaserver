@@ -41,6 +41,17 @@ impl PartialEq for Token {
     }
 }
 
+impl std::fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        return match self {
+            Token::Invalid => write!(f, "Token::Invalid()"),
+            Token::Literal(tok) => write!(f, "Token::Literal({})", tok),
+            Token::Pattern(tok) => write!(f, "Token::Pattern({})", tok),
+            Token::Regex(tok) => write!(f, "Token::Regex({})", tok),
+        };
+    }
+}
+
 pub struct PathError {
     message: String,
 }
