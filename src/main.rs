@@ -2,6 +2,7 @@ mod data;
 mod http;
 mod server;
 mod thread;
+mod router;
 
 use clap::{App, Arg};
 use ctrlc;
