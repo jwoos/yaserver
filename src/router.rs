@@ -1,9 +1,9 @@
 use std::collections::HashMap;
-use std::vec::Vec;
-use std::sync::{RwLock, Arc};
 use std::fs;
 use std::io;
 use std::path::PathBuf;
+use std::sync::{Arc, RwLock};
+use std::vec::Vec;
 
 use crate::http::path::{Path, Token};
 use ascii::{AsciiChar, AsciiStr};
@@ -76,9 +76,10 @@ impl RouterTrie {
             match tok {
                 Token::Invalid => {
                     return false;
-                },
+                }
                 Token::Literal(literal) => {
-                    let partial_path = String::from(path.unwrap().file_name().unwrap().to_str().unwrap());
+                    let partial_path =
+                        String::from(path.unwrap().file_name().unwrap().to_str().unwrap());
                     if *literal == partial_path {
                         let children_lock = current.children.clone();
                         let children = children_lock.read().unwrap();
@@ -90,7 +91,7 @@ impl RouterTrie {
                     }
 
                     return false;
-                },
+                }
                 Token::Pattern(_) | Token::Regex(_) => {
                     // TODO not implemented
                     return false;
@@ -112,8 +113,8 @@ impl RouterTrie {
 }
 
 mod tests {
-    use crate::router::RouterTrie;
     use crate::http::path::Path;
+    use crate::router::RouterTrie;
 
     #[test]
     fn construct() {
