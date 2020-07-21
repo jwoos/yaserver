@@ -49,8 +49,10 @@ impl RouterTrie {
             let partial_path = String::from(entry.file_name().to_str().unwrap());
 
             if entry.metadata()?.is_dir() {
-                base.children
-                    .insert(partial_path.clone(), RouterTrie::construct(partial_path)?);
+                base.children.insert(
+                    partial_path.clone(),
+                    RouterTrie::construct(String::from(path.to_str().unwrap()))?,
+                );
             } else {
                 let mut child = RouterTrie::new();
                 child.path = Some(entry.path());
@@ -105,7 +107,6 @@ impl RouterTrie {
             }
         }
 
-        // return something else
         return true;
     }
 }
@@ -116,7 +117,14 @@ mod tests {
 
     #[test]
     fn construct() {
-        let trie = RouterTrie::construct(".").unwrap();
-        let res = trie.find(Path::parse("/a/b/c").unwrap());
+        let trie = RouterTrie::construct(String::from(".")).unwrap();
+
+        let mut path = Path::parse(String::from("/a/b/c")).unwrap();
+        let res = trie.find(&mut path);
+        assert!(!res);
+
+        let mut path = Path::parse(String::from("/src/main.rs")).unwrap();
+        let res = trie.find(&mut path);
+        assert!(res);
     }
 }
