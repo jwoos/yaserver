@@ -25,7 +25,7 @@ fn main() {
                 .help("The path to serve statically"),
         )
         .arg(
-            Arg::with_name(ARG_HOST)
+            Arg::with_name(ARG_PORT)
                 .required(true)
                 .long("port")
                 .takes_value(true)
@@ -33,7 +33,7 @@ fn main() {
                 .help("The host to serve on"),
         )
         .arg(
-            Arg::with_name(ARG_PORT)
+            Arg::with_name(ARG_HOST)
                 .required(true)
                 .long("host")
                 .takes_value(true)
