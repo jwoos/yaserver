@@ -1,2 +1,2 @@
-# rust_server
+# Yet Another Server
 A rust server
